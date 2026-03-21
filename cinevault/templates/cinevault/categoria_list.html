@@ -1,0 +1,17 @@
+{% extends 'cinevault/base.html' %}
+
+{% block content %}
+<h1>categorias</h1>
+<a href="{% url 'criar_categoria' %}">+ nova categoria</a>
+<ul>
+    {% for categoria in categorias %}
+        <li>
+            {{ categoria.nome }}
+            - <a href="{% url 'editar_categoria' categoria.id %}">editar</a>
+            - <a href="{% url 'excluir_categoria' categoria.id %}">excluir</a>
+        </li>
+    {% empty %}
+        <li>nenhuma categoria cadastrada.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

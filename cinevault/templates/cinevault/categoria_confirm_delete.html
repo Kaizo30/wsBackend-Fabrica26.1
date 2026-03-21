@@ -1,0 +1,10 @@
+{% extends 'cinevault/base.html' %}
+
+{% block content %}
+<h1>excluir categoria</h1>
+<p>tem certeza que deseja excluir "{{ categoria.nome }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">sim, excluir</button>
+</form>
+{% endblock %}

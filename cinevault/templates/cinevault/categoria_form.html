@@ -1,0 +1,10 @@
+{% extends 'cinevault/base.html' %}
+
+{% block content %}
+<h1>formulário de categoria</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">salvar</button>
+</form>
+{% endblock %}

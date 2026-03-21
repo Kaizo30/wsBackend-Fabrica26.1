@@ -1,0 +1,17 @@
+{% extends 'cinevault/base.html' %}
+
+{% block content %}
+<h1>filmes</h1>
+<a href="{% url 'criar_filme' %}">+ novo filme</a>
+<ul>
+    {% for filme in filmes %}
+        <li>
+            {{ filme.titulo }} - {{ filme.categoria.nome }}
+            - <a href="{% url 'editar_filme' filme.id %}">editar</a>
+            - <a href="{% url 'excluir_filme' filme.id %}">excluir</a>
+        </li>
+    {% empty %}
+        <li>nenhum filme cadastrado.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

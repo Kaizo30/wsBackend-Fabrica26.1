@@ -1,0 +1,18 @@
+{% extends 'cinevault/base.html' %}
+
+{% block content %}
+<h1>catálogo de filmes</h1>
+<p>bem-vindo ao sistema.</p>
+
+<h2>últimos filmes cadastrados</h2>
+
+{% for filme in filmes %}
+    <div class="card">
+        <strong>{{ filme.titulo }}</strong> ({{ filme.ano }})<br>
+        diretor: {{ filme.diretor }}<br>
+        categoria: {{ filme.categoria.nome }}
+    </div>
+{% empty %}
+    <p>nenhum filme cadastrado.</p>
+{% endfor %}
+{% endblock %}
