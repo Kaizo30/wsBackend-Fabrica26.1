@@ -1,17 +1,42 @@
 {% extends 'cinevault/base.html' %}
 
+{% block title %}Filmes | CineVault{% endblock %}
+
 {% block content %}
-<h1>filmes</h1>
-<a href="{% url 'criar_filme' %}">+ novo filme</a>
-<ul>
-    {% for filme in filmes %}
-        <li>
-            {{ filme.titulo }} - {{ filme.categoria.nome }}
-            - <a href="{% url 'editar_filme' filme.id %}">editar</a>
-            - <a href="{% url 'excluir_filme' filme.id %}">excluir</a>
-        </li>
-    {% empty %}
-        <li>nenhum filme cadastrado.</li>
-    {% endfor %}
-</ul>
+<div class="card">
+    <h1 class="section-title">filmes</h1>
+    <p class="section-subtitle">gerencie os filmes cadastrados no catálogo</p>
+
+    <div style="margin-bottom: 20px;">
+        <a href="/filmes/criar/" class="btn btn-success">+ novo filme</a>
+    </div>
+
+    {% if filmes %}
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>título</th>
+                    <th>categoria</th>
+                    <th>ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for filme in filmes %}
+                <tr>
+                    <td>{{ filme.id }}</td>
+                    <td>{{ filme.titulo }}</td>
+                    <td>{{ filme.categoria.nome }}</td>
+                    <td>
+                        <a href="/filmes/editar/{{ filme.id }}/" class="btn btn-primary">editar</a>
+                        <a href="/filmes/excluir/{{ filme.id }}/" class="btn btn-danger">excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="empty">nenhum filme cadastrado.</p>
+    {% endif %}
+</div>
 {% endblock %}

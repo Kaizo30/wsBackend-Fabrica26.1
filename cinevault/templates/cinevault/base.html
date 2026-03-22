@@ -2,54 +2,299 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Catálogo de Filmes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CineVault{% endblock %}</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            background-color: #f4f4f4;
+            background: #f4f6f9;
+            color: #222;
         }
-        nav a {
-            margin-right: 15px;
-            text-decoration: none;
-            font-weight: bold;
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
+
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
         }
-        button {
-            padding: 8px 12px;
-            cursor: pointer;
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        input, textarea, select {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0 15px;
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #60a5fa;
         }
-        ul {
-            padding-left: 20px;
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .card {
-            border: 1px solid #ddd;
-            padding: 12px;
-            margin-bottom: 10px;
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            background: #1f2937;
+            padding: 10px 14px;
             border-radius: 8px;
-            background: #fff;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            background: #2563eb;
+        }
+
+        main {
+            padding: 30px 0;
+            min-height: 80vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            max-width: 700px;
+            margin: 0 auto 25px auto;
+            line-height: 1.6;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #111827;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .empty {
+            color: #6b7280;
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 220px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #2563eb;
+        }
+
+        .movie-result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 25px;
+        }
+
+        .movie-poster img {
+            width: 220px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+
+        .movie-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .movie-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .movie-info p {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        footer {
+            background: #111827;
+            color: #d1d5db;
+            text-align: center;
+            padding: 18px 0;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-links {
+                width: 100%;
+            }
+
+            .movie-result {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'home' %}">home</a>
-        <a href="{% url 'listar_categorias' %}">categorias</a>
-        <a href="{% url 'listar_filmes' %}">filmes</a>
-        <a href="{% url 'buscar_filme_api' %}">buscar api</a>
-    </nav>
-    <hr>
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo">🎬 CineVault</div>
+
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/categorias/">Categorias</a>
+                <a href="/filmes/">Filmes</a>
+                <a href="/api/buscar-filme/">Buscar</a>
+                <a href="/admin/">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>CineVault • Catálogo de filmes com Django + OMDb API</p>
+        </div>
+    </footer>
+
 </body>
 </html>

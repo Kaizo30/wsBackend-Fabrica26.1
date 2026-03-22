@@ -1,18 +1,35 @@
 {% extends 'cinevault/base.html' %}
 
+{% block title %}Home | CineVault{% endblock %}
+
 {% block content %}
-<h1>catálogo de filmes</h1>
-<p>bem-vindo ao sistema.</p>
+<div class="card hero">
+    <h1>bem-vindo ao cinevault</h1>
+    <p>
+        um sistema web para gerenciar seu catálogo de filmes. 
+        cadastre filmes e categorias, organize seu acervo e utilize a integração com a OMDb API 
+        para buscar informações de filmes externos.
+    </p>
 
-<h2>últimos filmes cadastrados</h2>
-
-{% for filme in filmes %}
-    <div class="card">
-        <strong>{{ filme.titulo }}</strong> ({{ filme.ano }})<br>
-        diretor: {{ filme.diretor }}<br>
-        categoria: {{ filme.categoria.nome }}
+    <div class="btn-group">
+        <a href="/categorias/" class="btn btn-primary">gerenciar categorias</a>
+        <a href="/filmes/" class="btn btn-success">gerenciar filmes</a>
+        <a href="/api/buscar-filme/" class="btn btn-secondary">buscar filme na api</a>
     </div>
-{% empty %}
-    <p>nenhum filme cadastrado.</p>
-{% endfor %}
+</div>
+
+<div class="card">
+    <h2 class="section-title">sobre o sistema</h2>
+    <p class="section-subtitle">
+        o cinevault foi desenvolvido com django para demonstrar:
+    </p>
+    <ul style="margin-left: 20px; line-height: 1.8;">
+        <li>crud completo de categorias</li>
+        <li>crud completo de filmes</li>
+        <li>relacionamento entre entidades</li>
+        <li>uso de django templates</li>
+        <li>consumo de api externa (OMDb API)</li>
+        <li>painel administrativo do django</li>
+    </ul>
+</div>
 {% endblock %}

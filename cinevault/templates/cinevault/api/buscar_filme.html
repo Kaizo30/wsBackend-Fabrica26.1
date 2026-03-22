@@ -1,0 +1,50 @@
+{% extends 'cinevault/base.html' %}
+
+{% block title %}Buscar Filme | CineVault{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="section-title">buscar filme na omdb api</h1>
+    <p class="section-subtitle">
+        pesquise filmes externos para consultar informações antes de cadastrar no catálogo.
+    </p>
+
+    <p style="margin-top: 10px; margin-bottom: 16px; font-size: 14px; color: #6b7280;">
+        <strong>dica:</strong> pesquise pelo título original em inglês para obter resultados mais precisos.
+    </p>
+
+    <form method="GET">
+        <input type="text" name="titulo" placeholder="ex: the shining" value="{{ request.GET.titulo }}">
+        <button type="submit" class="btn btn-primary">buscar</button>
+    </form>
+
+    {% if erro %}
+        <div style="margin-top: 20px; padding: 14px; background: #fee2e2; color: #991b1b; border-radius: 10px;">
+            {{ erro }}
+        </div>
+    {% endif %}
+
+    {% if filme %}
+        <div class="movie-result">
+            <div class="movie-poster">
+                {% if filme.Poster and filme.Poster != 'N/A' %}
+                    <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
+                {% else %}
+                    <div class="card" style="width:220px; text-align:center;">sem pôster</div>
+                {% endif %}
+            </div>
+
+            <div class="movie-info">
+                <h3>{{ filme.Title }}</h3>
+                <p><strong>ano:</strong> {{ filme.Year }}</p>
+                <p><strong>tipo:</strong> {{ filme.Type }}</p>
+                <p><strong>gênero:</strong> {{ filme.Genre }}</p>
+                <p><strong>diretor:</strong> {{ filme.Director }}</p>
+                <p><strong>atores:</strong> {{ filme.Actors }}</p>
+                <p><strong>nota imdb:</strong> {{ filme.imdbRating }}</p>
+                <p><strong>sinopse:</strong> {{ filme.Plot }}</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

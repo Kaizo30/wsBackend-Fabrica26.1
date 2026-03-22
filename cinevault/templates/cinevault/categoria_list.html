@@ -1,17 +1,40 @@
 {% extends 'cinevault/base.html' %}
 
+{% block title %}Categorias | CineVault{% endblock %}
+
 {% block content %}
-<h1>categorias</h1>
-<a href="{% url 'criar_categoria' %}">+ nova categoria</a>
-<ul>
-    {% for categoria in categorias %}
-        <li>
-            {{ categoria.nome }}
-            - <a href="{% url 'editar_categoria' categoria.id %}">editar</a>
-            - <a href="{% url 'excluir_categoria' categoria.id %}">excluir</a>
-        </li>
-    {% empty %}
-        <li>nenhuma categoria cadastrada.</li>
-    {% endfor %}
-</ul>
+<div class="card">
+    <h1 class="section-title">categorias</h1>
+    <p class="section-subtitle">gerencie as categorias do catálogo</p>
+
+    <div style="margin-bottom: 20px;">
+        <a href="/categorias/criar/" class="btn btn-success">+ nova categoria</a>
+    </div>
+
+    {% if categorias %}
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>nome</th>
+                    <th>ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                <tr>
+                    <td>{{ categoria.id }}</td>
+                    <td>{{ categoria.nome }}</td>
+                    <td>
+                        <a href="/categorias/editar/{{ categoria.id }}/" class="btn btn-primary">editar</a>
+                        <a href="/categorias/excluir/{{ categoria.id }}/" class="btn btn-danger">excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="empty">nenhuma categoria cadastrada.</p>
+    {% endif %}
+</div>
 {% endblock %}

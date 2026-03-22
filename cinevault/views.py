@@ -1,8 +1,11 @@
+import os
 import requests
-from decouple import config
+from dotenv import load_dotenv
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Filme
 from .forms import CategoriaForm, FilmeForm
+
+load_dotenv()
 
 
 def home(request):
@@ -95,27 +98,34 @@ def excluir_filme(request, pk):
 # -------------------
 
 def buscar_filme_api(request):
-    termo = request.GET.get('q')
-    filmes_api = []
+    filme = None
     erro = None
 
-    if termo:
-        api_key = config('OMDB_API_KEY')
-        url = f"http://www.omdbapi.com/?apikey={api_key}&s={termo}"
+    titulo = request.GET.get('titulo')
 
-        resposta = requests.get(url)
+    if titulo:
+        api_key = os.getenv("OMDB_API_KEY")
 
-        if resposta.status_code == 200:
-            dados = resposta.json()
-
-            if dados.get("Response") == "True":
-                filmes_api = dados.get("Search", [])
-            else:
-                erro = dados.get("Error", "Nenhum filme encontrado.")
+        if not api_key:
+            erro = "chave da API não encontrada no arquivo .env"
         else:
-            erro = "Erro ao consultar API externa."
+            url = f"http://www.omdbapi.com/?t={titulo}&apikey={api_key}&plot=full"
 
-    return render(request, 'cinevault/buscar_filme_api.html', {
-        'filmes_api': filmes_api,
-        'erro': erro
-    })
+            try:
+                resposta = requests.get(url)
+                dados = resposta.json()
+
+                if dados.get("Response") == "True":
+                    filme = dados
+                else:
+                    erro = dados.get("Error", "filme não encontrado.")
+
+            except Exception as e:
+                erro = f"erro ao conectar com a api: {str(e)}"
+
+    contexto = {
+        'filme': filme,
+        'erro': erro,
+    }
+
+    return render(request, 'cinevault/api/buscar_filme.html', contexto)
