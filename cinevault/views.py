@@ -266,23 +266,142 @@ def detalhes_filme_api(request, imdb_id):
     erro = None
     trailer_url = None
     trailer_busca_url = None
-    trailer_embed_url = None
 
     try:
-        filme, trailer, trailer_busca_url = buscar_detalhes_tmdb(imdb_id)
+        # usa o parâmetro "imdb_id" como ID da TMDb por compatibilidade com a rota atual
+        tmdb_id = imdb_id
 
-        if trailer:
-            trailer_url = trailer.get("watch_url")
-            trailer_embed_url = trailer.get("embed_url")
-    except ValueError as e:
-        erro = str(e)
+        # ---------------------------
+        # 1) detalhes principais do filme
+        # ---------------------------
+        detalhes_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+        detalhes_params = {
+            "api_key": TMDB_API_KEY,
+            "language": "pt-BR",
+        }
+
+        detalhes_response = requests.get(detalhes_url, params=detalhes_params, timeout=10)
+        detalhes_response.raise_for_status()
+        dados = detalhes_response.json()
+
+        # se vier erro da API
+        if dados.get("success") is False:
+            erro = "filme não encontrado."
+        else:
+            # ---------------------------
+            # 2) créditos (diretor + elenco)
+            # ---------------------------
+            credits_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/credits"
+            credits_params = {
+                "api_key": TMDB_API_KEY,
+                "language": "pt-BR",
+            }
+
+            credits_response = requests.get(credits_url, params=credits_params, timeout=10)
+            credits_response.raise_for_status()
+            credits_data = credits_response.json()
+
+            # diretor
+            diretor = "Não informado"
+            crew = credits_data.get("crew", [])
+            for pessoa in crew:
+                if pessoa.get("job") == "Director":
+                    diretor = pessoa.get("name", "Não informado")
+                    break
+
+            # atores principais (top 5)
+            elenco = credits_data.get("cast", [])
+            atores = ", ".join([ator.get("name", "") for ator in elenco[:5] if ator.get("name")]) or "Não informado"
+
+            # ---------------------------
+            # 3) vídeos (trailer real)
+            # ---------------------------
+            videos_url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/videos"
+            videos_params = {
+                "api_key": TMDB_API_KEY,
+                "language": "pt-BR",
+            }
+
+            videos_response = requests.get(videos_url, params=videos_params, timeout=10)
+            videos_response.raise_for_status()
+            videos_data = videos_response.json()
+
+            videos = videos_data.get("results", [])
+
+            # tenta trailer oficial do YouTube
+            trailer_key = None
+
+            # prioridade 1: trailer em pt-BR
+            for video in videos:
+                if (
+                    video.get("site") == "YouTube"
+                    and video.get("type") == "Trailer"
+                    and video.get("official") is True
+                ):
+                    trailer_key = video.get("key")
+                    break
+
+            # prioridade 2: qualquer trailer no YouTube
+            if not trailer_key:
+                for video in videos:
+                    if (
+                        video.get("site") == "YouTube"
+                        and video.get("type") == "Trailer"
+                    ):
+                        trailer_key = video.get("key")
+                        break
+
+            # fallback: busca no YouTube
+            titulo_busca = dados.get("title", "")
+            ano_busca = dados.get("release_date", "")[:4] if dados.get("release_date") else ""
+            busca_trailer = f"{titulo_busca} {ano_busca} trailer"
+
+            trailer_busca_url = f"https://www.youtube.com/results?search_query={quote_plus(busca_trailer)}"
+
+            if trailer_key:
+                trailer_url = f"https://www.youtube.com/embed/{trailer_key}"
+
+            # ---------------------------
+            # 4) montar objeto no formato q teu template já entende
+            # ---------------------------
+            poster_path = dados.get("poster_path")
+            backdrop_path = dados.get("backdrop_path")
+
+            poster_url = (
+                f"https://image.tmdb.org/t/p/w500{poster_path}"
+                if poster_path else
+                "https://via.placeholder.com/300x450?text=Sem+Imagem"
+            )
+
+            backdrop_url = (
+                f"https://image.tmdb.org/t/p/original{backdrop_path}"
+                if backdrop_path else
+                None
+            )
+
+            generos = ", ".join([g.get("name", "") for g in dados.get("genres", []) if g.get("name")]) or "Não informado"
+
+            filme = {
+                "Title": dados.get("title", "Sem título"),
+                "Year": dados.get("release_date", "")[:4] if dados.get("release_date") else "N/A",
+                "Released": dados.get("release_date", "Não informado"),
+                "Genre": generos,
+                "Runtime": f"{dados.get('runtime')} min" if dados.get("runtime") else "Não informado",
+                "Plot": dados.get("overview", "Sinopse não disponível.") or "Sinopse não disponível.",
+                "Poster": poster_url,
+                "Backdrop": backdrop_url,
+                "Director": diretor,
+                "Actors": atores,
+                "imdbRating": str(dados.get("vote_average", "N/A")),
+                "VoteCount": dados.get("vote_count", 0),
+            }
+
     except requests.RequestException:
-        erro = "Erro ao conectar com a TMDb."
+        erro = "erro ao conectar com a tmdb."
 
     return render(request, "cinevault/api/detalhes_filme.html", {
         "filme": filme,
         "erro": erro,
         "trailer_url": trailer_url,
-        "trailer_embed_url": trailer_embed_url,
         "trailer_busca_url": trailer_busca_url,
     })
