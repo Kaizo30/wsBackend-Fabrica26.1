@@ -94,11 +94,11 @@ def excluir_filme(request, pk):
 
 
 # -------------------
-# API EXTERNA - OMDb
+# API EXTERNA - OMDb (BUSCA MÚLTIPLA)
 # -------------------
 
 def buscar_filme_api(request):
-    filme = None
+    resultados = []
     erro = None
 
     titulo = request.GET.get('titulo')
@@ -109,23 +109,58 @@ def buscar_filme_api(request):
         if not api_key:
             erro = "chave da API não encontrada no arquivo .env"
         else:
-            url = f"http://www.omdbapi.com/?t={titulo}&apikey={api_key}&plot=full"
+            url = f"http://www.omdbapi.com/?s={titulo}&apikey={api_key}"
 
             try:
                 resposta = requests.get(url)
                 dados = resposta.json()
 
                 if dados.get("Response") == "True":
-                    filme = dados
+                    resultados = dados.get("Search", [])
                 else:
-                    erro = dados.get("Error", "filme não encontrado.")
+                    erro = dados.get("Error", "nenhum filme encontrado.")
 
             except Exception as e:
                 erro = f"erro ao conectar com a api: {str(e)}"
+
+    contexto = {
+        'resultados': resultados,
+        'erro': erro,
+    }
+
+    return render(request, 'cinevault/api/buscar_filme.html', contexto)
+
+
+# -------------------
+# DETALHES DO FILME PELA API
+# -------------------
+
+def detalhes_filme_api(request, imdb_id):
+    filme = None
+    erro = None
+
+    api_key = os.getenv("OMDB_API_KEY")
+
+    if not api_key:
+        erro = "chave da API não encontrada no arquivo .env"
+    else:
+        url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={api_key}&plot=full"
+
+        try:
+            resposta = requests.get(url)
+            dados = resposta.json()
+
+            if dados.get("Response") == "True":
+                filme = dados
+            else:
+                erro = dados.get("Error", "filme não encontrado.")
+
+        except Exception as e:
+            erro = f"erro ao conectar com a api: {str(e)}"
 
     contexto = {
         'filme': filme,
         'erro': erro,
     }
 
-    return render(request, 'cinevault/api/buscar_filme.html', contexto)
+    return render(request, 'cinevault/api/detalhes_filme.html', contexto)

@@ -1,0 +1,53 @@
+{% extends 'cinevault/base.html' %}
+
+{% block title %}Detalhes do Filme | CineVault{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% if erro %}
+        <div style="padding: 14px; background: #fee2e2; color: #991b1b; border-radius: 10px;">
+            {{ erro }}
+        </div>
+    {% endif %}
+
+    {% if filme %}
+        <a href="{% url 'buscar_filme_api' %}" style="text-decoration: none; color: #a78bfa;">← voltar para busca</a>
+
+        <div class="movie-result" style="margin-top: 20px;">
+            <div class="movie-poster">
+                {% if filme.Poster and filme.Poster != 'N/A' %}
+                    <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
+                {% else %}
+                    <div class="card" style="width:220px; text-align:center;">sem pôster</div>
+                {% endif %}
+            </div>
+
+            <div class="movie-info">
+                <h1 class="section-title">{{ filme.Title }}</h1>
+                <p><strong>ano:</strong> {{ filme.Year }}</p>
+                <p><strong>lançamento:</strong> {{ filme.Released }}</p>
+                <p><strong>duração:</strong> {{ filme.Runtime }}</p>
+                <p><strong>gênero:</strong> {{ filme.Genre }}</p>
+                <p><strong>diretor:</strong> {{ filme.Director }}</p>
+                <p><strong>roteiro:</strong> {{ filme.Writer }}</p>
+                <p><strong>atores:</strong> {{ filme.Actors }}</p>
+                <p><strong>idioma:</strong> {{ filme.Language }}</p>
+                <p><strong>país:</strong> {{ filme.Country }}</p>
+                <p><strong>nota imdb:</strong> {{ filme.imdbRating }}</p>
+                <p><strong>sinopse:</strong> {{ filme.Plot }}</p>
+
+                <div style="margin-top: 20px;">
+                    <a 
+                        href="https://www.youtube.com/results?search_query={{ filme.Title }} official trailer"
+                        target="_blank"
+                        class="btn btn-primary"
+                        style="text-decoration: none;"
+                    >
+                        assistir trailer
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

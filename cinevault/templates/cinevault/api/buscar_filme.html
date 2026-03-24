@@ -1,10 +1,10 @@
 {% extends 'cinevault/base.html' %}
 
-{% block title %}Buscar Filme | CineVault{% endblock %}
+{% block title %}Buscar Filmes | CineVault{% endblock %}
 
 {% block content %}
 <div class="card">
-    <h1 class="section-title">buscar filme na omdb api</h1>
+    <h1 class="section-title">buscar filmes</h1>
     <p class="section-subtitle">
         pesquise filmes externos para consultar informações antes de cadastrar no catálogo.
     </p>
@@ -14,7 +14,7 @@
     </p>
 
     <form method="GET">
-        <input type="text" name="titulo" placeholder="ex: the shining" value="{{ request.GET.titulo }}">
+        <input type="text" name="titulo" placeholder="ex: star wars" value="{{ request.GET.titulo }}">
         <button type="submit" class="btn btn-primary">buscar</button>
     </form>
 
@@ -24,25 +24,29 @@
         </div>
     {% endif %}
 
-    {% if filme %}
-        <div class="movie-result">
-            <div class="movie-poster">
-                {% if filme.Poster and filme.Poster != 'N/A' %}
-                    <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
-                {% else %}
-                    <div class="card" style="width:220px; text-align:center;">sem pôster</div>
-                {% endif %}
-            </div>
+    {% if resultados %}
+        <div style="margin-top: 30px;">
+            <h2 class="section-title" style="font-size: 1.4rem;">resultados encontrados</h2>
 
-            <div class="movie-info">
-                <h3>{{ filme.Title }}</h3>
-                <p><strong>ano:</strong> {{ filme.Year }}</p>
-                <p><strong>tipo:</strong> {{ filme.Type }}</p>
-                <p><strong>gênero:</strong> {{ filme.Genre }}</p>
-                <p><strong>diretor:</strong> {{ filme.Director }}</p>
-                <p><strong>atores:</strong> {{ filme.Actors }}</p>
-                <p><strong>nota imdb:</strong> {{ filme.imdbRating }}</p>
-                <p><strong>sinopse:</strong> {{ filme.Plot }}</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 20px;">
+                {% for filme in resultados %}
+                    <div class="card" style="padding: 16px;">
+                        {% if filme.Poster and filme.Poster != 'N/A' %}
+                            <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}" style="width: 100%; height: 320px; object-fit: cover; border-radius: 12px;">
+                        {% else %}
+                            <div class="card" style="height: 320px; display: flex; align-items: center; justify-content: center;">
+                                sem pôster
+                            </div>
+                        {% endif %}
+
+                        <h3 style="margin-top: 14px; font-size: 1.1rem;">{{ filme.Title }}</h3>
+                        <p style="color: #9ca3af;">{{ filme.Year }} • {{ filme.Type }}</p>
+
+                        <a href="{% url 'detalhes_filme_api' filme.imdbID %}" class="btn btn-primary" style="display: inline-block; margin-top: 12px; text-decoration: none;">
+                            ver detalhes
+                        </a>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     {% endif %}
