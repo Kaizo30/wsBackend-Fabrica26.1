@@ -1,51 +1,47 @@
 {% extends 'cinevault/base.html' %}
 
-{% block title %}Detalhes do Filme | CineVault{% endblock %}
+{% block title %}Detalhes | CineVault{% endblock %}
 
 {% block content %}
-<div class="card">
+<div class="details-page">
+    <a href="{% url 'buscar_filme_api' %}" class="back-link">← voltar para busca</a>
+
     {% if erro %}
-        <div style="padding: 14px; background: #fee2e2; color: #991b1b; border-radius: 10px;">
+        <div class="error-box">
             {{ erro }}
         </div>
     {% endif %}
 
     {% if filme %}
-        <a href="{% url 'buscar_filme_api' %}" style="text-decoration: none; color: #a78bfa;">← voltar para busca</a>
-
-        <div class="movie-result" style="margin-top: 20px;">
-            <div class="movie-poster">
+        <div class="details-card">
+            <div class="details-poster">
                 {% if filme.Poster and filme.Poster != 'N/A' %}
                     <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
                 {% else %}
-                    <div class="card" style="width:220px; text-align:center;">sem pôster</div>
+                    <div class="no-poster large">sem pôster</div>
                 {% endif %}
             </div>
 
-            <div class="movie-info">
-                <h1 class="section-title">{{ filme.Title }}</h1>
-                <p><strong>ano:</strong> {{ filme.Year }}</p>
-                <p><strong>lançamento:</strong> {{ filme.Released }}</p>
-                <p><strong>duração:</strong> {{ filme.Runtime }}</p>
-                <p><strong>gênero:</strong> {{ filme.Genre }}</p>
-                <p><strong>diretor:</strong> {{ filme.Director }}</p>
-                <p><strong>roteiro:</strong> {{ filme.Writer }}</p>
-                <p><strong>atores:</strong> {{ filme.Actors }}</p>
-                <p><strong>idioma:</strong> {{ filme.Language }}</p>
-                <p><strong>país:</strong> {{ filme.Country }}</p>
-                <p><strong>nota imdb:</strong> {{ filme.imdbRating }}</p>
-                <p><strong>sinopse:</strong> {{ filme.Plot }}</p>
+            <div class="details-info">
+                <h1 class="movie-title">{{ filme.Title }}</h1>
+                <p><strong>Ano:</strong> {{ filme.Year }}</p>
+                <p><strong>Lançamento:</strong> {{ filme.Released }}</p>
+                <p><strong>Duração:</strong> {{ filme.Runtime }}</p>
+                <p><strong>Gênero:</strong> {{ filme.Genre }}</p>
+                <p><strong>Diretor:</strong> {{ filme.Director }}</p>
+                <p><strong>Atores:</strong> {{ filme.Actors }}</p>
+                <p><strong>Idioma:</strong> {{ filme.Language }}</p>
+                <p><strong>País:</strong> {{ filme.Country }}</p>
+                <p><strong>Nota IMDb:</strong> ⭐ {{ filme.imdbRating }}</p>
+                <p><strong>Sinopse:</strong> {{ filme.Plot }}</p>
 
-                <div style="margin-top: 20px;">
-                    <a 
-                        href="https://www.youtube.com/results?search_query={{ filme.Title }} official trailer"
-                        target="_blank"
-                        class="btn btn-primary"
-                        style="text-decoration: none;"
-                    >
-                        assistir trailer
-                    </a>
-                </div>
+                {% if trailer_busca_url %}
+                    <div class="trailer-actions">
+                        <a href="{{ trailer_busca_url }}" target="_blank" class="btn btn-primary">
+                            🎬 ver trailer no youtube
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     {% endif %}

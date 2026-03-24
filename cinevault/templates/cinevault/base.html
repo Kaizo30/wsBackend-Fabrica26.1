@@ -267,6 +267,204 @@
                 flex-direction: column;
             }
         }
+        /* =========================
+   busca multipla + detalhes
+========================= */
+
+.search-page,
+.details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-header {
+    margin-bottom: 24px;
+}
+
+.search-tip {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    font-size: 0.95rem;
+}
+
+.search-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.search-form input {
+    flex: 1;
+    min-width: 260px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f8fafc;
+    outline: none;
+}
+
+.search-form input:focus {
+    border-color: #38bdf8;
+}
+
+.error-box {
+    margin: 20px 0;
+    padding: 14px;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 10px;
+}
+
+.empty-message {
+    margin-top: 20px;
+    color: #cbd5e1;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.movie-card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.movie-poster img {
+    width: 100%;
+    height: 330px;
+    object-fit: cover;
+    display: block;
+}
+
+.movie-card-content {
+    padding: 16px;
+}
+
+.movie-card-content h3 {
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+}
+
+.movie-card-content p {
+    margin-bottom: 8px;
+    color: #d1d5db;
+}
+
+.no-poster {
+    width: 100%;
+    height: 330px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1f2937;
+    color: #94a3b8;
+    font-weight: bold;
+}
+
+.no-poster.large {
+    height: 420px;
+}
+
+.details-card {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 20px;
+}
+
+.details-poster img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.details-info h1 {
+    margin-bottom: 18px;
+}
+
+.details-info p {
+    margin-bottom: 10px;
+    color: #d1d5db;
+    line-height: 1.6;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 18px;
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .details-card {
+        grid-template-columns: 1fr;
+    }
+
+    .details-poster {
+        max-width: 320px;
+        margin: 0 auto;
+    }
+}
+.movie-card-title {
+    font-size: 1.15rem;
+    line-height: 1.4;
+    color: #f8fafc;
+    margin-bottom: 12px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+}
+
+.movie-title {
+    font-size: 2rem;
+    line-height: 1.2;
+    color: #ffffff;
+    margin-bottom: 18px;
+}
+
+.movie-card-content p,
+.details-info p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.movie-card-content {
+    padding: 18px;
+}
+
+.movie-card-content .btn {
+    margin-top: 12px;
+    display: inline-block;
+}
+
+.trailer-actions {
+    margin-top: 24px;
+}
     </style>
 </head>
 <body>
@@ -276,12 +474,12 @@
             <div class="logo">🎬 CineVault</div>
 
             <nav class="nav-links">
-                <a href="/">Home</a>
-                <a href="/categorias/">Categorias</a>
-                <a href="/filmes/">Filmes</a>
-                <a href="{% url 'buscar_filme_api' %}">buscar</a>
-                <a href="/admin/">Admin</a>
-            </nav>
+    <a href="/">Início</a>
+    <a href="/categorias/">Categorias</a>
+    <a href="/filmes/">Filmes</a>
+    <a href="{% url 'buscar_filme_api' %}">Buscar</a>
+    <a href="/admin/">Admin</a>
+</nav>
         </div>
     </header>
 
@@ -292,7 +490,7 @@
 
     <footer>
         <div class="container">
-            <p>CineVault • Catálogo de filmes com Django + OMDb API</p>
+            <p>CineVault • Catálogo de filmes</p>
         </div>
     </footer>
 

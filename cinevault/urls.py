@@ -16,7 +16,7 @@ urlpatterns = [
     path('filmes/editar/<int:pk>/', views.editar_filme, name='editar_filme'),
     path('filmes/excluir/<int:pk>/', views.excluir_filme, name='excluir_filme'),
 
-    # api
+    # api omdb
     path('buscar/', views.buscar_filme_api, name='buscar_filme_api'),
     path('buscar/<str:imdb_id>/', views.detalhes_filme_api, name='detalhes_filme_api'),
 ]

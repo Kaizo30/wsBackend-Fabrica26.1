@@ -1,54 +1,61 @@
 {% extends 'cinevault/base.html' %}
 
-{% block title %}Buscar Filmes | CineVault{% endblock %}
+{% block title %}Buscar | CineVault{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h1 class="section-title">buscar filmes</h1>
-    <p class="section-subtitle">
-        pesquise filmes externos para consultar informações antes de cadastrar no catálogo.
-    </p>
+<div class="search-page">
+    <div class="search-header">
+        <h1 class="section-title">Buscar Filmes</h1>
+        <p class="section-subtitle">
+            Pesquise filmes e clique para ver os detalhes completos.
+        </p>
+        <p class="search-tip">
+            Você pode pesquisar em português ou inglês. Alguns filmes funcionam melhor em inglês.
+        </p>
+    </div>
 
-    <p style="margin-top: 10px; margin-bottom: 16px; font-size: 14px; color: #6b7280;">
-        <strong>dica:</strong> pesquise pelo título original em inglês para obter resultados mais precisos.
-    </p>
-
-    <form method="GET">
-        <input type="text" name="titulo" placeholder="ex: star wars" value="{{ request.GET.titulo }}">
-        <button type="submit" class="btn btn-primary">buscar</button>
+    <form method="GET" class="search-form">
+        <input
+            type="text"
+            name="titulo"
+            placeholder="Digite o nome do filme..."
+            value="{{ request.GET.titulo }}"
+        >
+        <button type="submit" class="btn btn-primary">Buscar</button>
     </form>
 
     {% if erro %}
-        <div style="margin-top: 20px; padding: 14px; background: #fee2e2; color: #991b1b; border-radius: 10px;">
+        <div class="error-box">
             {{ erro }}
         </div>
     {% endif %}
 
     {% if resultados %}
-        <div style="margin-top: 30px;">
-            <h2 class="section-title" style="font-size: 1.4rem;">resultados encontrados</h2>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 20px;">
-                {% for filme in resultados %}
-                    <div class="card" style="padding: 16px;">
+        <div class="results-grid">
+            {% for filme in resultados %}
+                <div class="movie-card">
+                    <div class="movie-poster">
                         {% if filme.Poster and filme.Poster != 'N/A' %}
-                            <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}" style="width: 100%; height: 320px; object-fit: cover; border-radius: 12px;">
+                            <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
                         {% else %}
-                            <div class="card" style="height: 320px; display: flex; align-items: center; justify-content: center;">
-                                sem pôster
-                            </div>
+                            <div class="no-poster">Sem pôster</div>
                         {% endif %}
+                    </div>
 
-                        <h3 style="margin-top: 14px; font-size: 1.1rem;">{{ filme.Title }}</h3>
-                        <p style="color: #9ca3af;">{{ filme.Year }} • {{ filme.Type }}</p>
+                    <div class="movie-card-content">
+                        <h3 class="movie-card-title">{{ filme.Title }}</h3>
+                        <p><strong>Ano:</strong> {{ filme.Year }}</p>
+                        <p><strong>Tipo:</strong> {{ filme.Type|title }}</p>
 
-                        <a href="{% url 'detalhes_filme_api' filme.imdbID %}" class="btn btn-primary" style="display: inline-block; margin-top: 12px; text-decoration: none;">
-                            ver detalhes
+                        <a href="{% url 'detalhes_filme_api' filme.imdbID %}" class="btn btn-secondary">
+                            Ver detalhes
                         </a>
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
+    {% elif request.GET.titulo and not erro %}
+        <p class="empty-message">Nenhum resultado encontrado.</p>
     {% endif %}
 </div>
 {% endblock %}

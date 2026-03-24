@@ -1,11 +1,19 @@
 import os
 import requests
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Categoria, Filme
 from .forms import CategoriaForm, FilmeForm
 
 load_dotenv()
+
+OMDB_API_KEY = os.getenv("OMDB_API_KEY")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+
+TMDB_BASE_URL = "https://api.themoviedb.org/3"
+TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+TMDB_BACKDROP_BASE_URL = "https://image.tmdb.org/t/p/original"
 
 
 def home(request):
@@ -94,73 +102,187 @@ def excluir_filme(request, pk):
 
 
 # -------------------
-# API EXTERNA - OMDb (BUSCA MÚLTIPLA)
+# FUNÇÕES AUXILIARES TMDb
+# -------------------
+
+def montar_url_imagem_tmdb(caminho_imagem):
+    if caminho_imagem:
+        return f"{TMDB_IMAGE_BASE_URL}{caminho_imagem}"
+    return None
+
+
+def montar_url_backdrop_tmdb(caminho_backdrop):
+    if caminho_backdrop:
+        return f"{TMDB_BACKDROP_BASE_URL}{caminho_backdrop}"
+    return None
+
+
+def buscar_filmes_tmdb(titulo):
+    if not TMDB_API_KEY:
+        raise ValueError("TMDB_API_KEY não configurada no .env")
+
+    url = f"{TMDB_BASE_URL}/search/movie"
+    params = {
+        "api_key": TMDB_API_KEY,
+        "query": titulo,
+        "language": "pt-BR",
+        "include_adult": False,
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+    dados = response.json()
+
+    resultados = []
+
+    for filme in dados.get("results", []):
+        resultados.append({
+            "Title": filme.get("title"),
+            "Year": (filme.get("release_date") or "")[:4] if filme.get("release_date") else "N/A",
+            "Type": "movie",
+            "Poster": montar_url_imagem_tmdb(filme.get("poster_path")) or "N/A",
+            "imdbID": str(filme.get("id")),  # mantemos o nome imdbID para não quebrar template/rota
+        })
+
+    return resultados
+
+
+def obter_trailer_tmdb(videos):
+    resultados = videos.get("results", []) if videos else []
+
+    # prioridade 1: trailer oficial no youtube
+    for video in resultados:
+        if (
+            video.get("site") == "YouTube"
+            and video.get("type") == "Trailer"
+            and video.get("official") is True
+        ):
+            key = video.get("key")
+            if key:
+                return {
+                    "watch_url": f"https://www.youtube.com/watch?v={key}",
+                    "embed_url": f"https://www.youtube.com/embed/{key}",
+                }
+
+    # prioridade 2: qualquer trailer no youtube
+    for video in resultados:
+        if video.get("site") == "YouTube" and video.get("type") == "Trailer":
+            key = video.get("key")
+            if key:
+                return {
+                    "watch_url": f"https://www.youtube.com/watch?v={key}",
+                    "embed_url": f"https://www.youtube.com/embed/{key}",
+                }
+
+    # prioridade 3: teaser no youtube
+    for video in resultados:
+        if video.get("site") == "YouTube" and video.get("type") == "Teaser":
+            key = video.get("key")
+            if key:
+                return {
+                    "watch_url": f"https://www.youtube.com/watch?v={key}",
+                    "embed_url": f"https://www.youtube.com/embed/{key}",
+                }
+
+    return None
+
+
+def buscar_detalhes_tmdb(tmdb_id):
+    if not TMDB_API_KEY:
+        raise ValueError("TMDB_API_KEY não configurada no .env")
+
+    url = f"{TMDB_BASE_URL}/movie/{tmdb_id}"
+    params = {
+        "api_key": TMDB_API_KEY,
+        "language": "pt-BR",
+        "append_to_response": "videos",
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+    dados = response.json()
+
+    trailer = obter_trailer_tmdb(dados.get("videos", {}))
+
+    titulo = dados.get("title", "")
+    ano = (dados.get("release_date") or "")[:4] if dados.get("release_date") else ""
+
+    trailer_busca_url = f"https://www.youtube.com/results?search_query={quote_plus(f'{titulo} {ano} trailer oficial')}"
+
+    generos = ", ".join([g.get("name", "") for g in dados.get("genres", []) if g.get("name")])
+
+    diretores = []
+    elenco = []
+
+    # ainda não vamos usar credits aqui pra não complicar demais nessa etapa
+    # isso pode entrar numa próxima melhoria
+
+    filme_formatado = {
+        "Title": dados.get("title", "Título não disponível"),
+        "Year": ano or "N/A",
+        "Released": dados.get("release_date", "N/A"),
+        "Genre": generos or "N/A",
+        "Runtime": f"{dados.get('runtime')} min" if dados.get("runtime") else "N/A",
+        "Director": ", ".join(diretores) if diretores else "Não informado",
+        "Actors": ", ".join(elenco) if elenco else "Não informado",
+        "Plot": dados.get("overview") or "Sinopse não disponível em português.",
+        "Language": dados.get("original_language", "N/A").upper(),
+        "Poster": montar_url_imagem_tmdb(dados.get("poster_path")) or "N/A",
+        "Backdrop": montar_url_backdrop_tmdb(dados.get("backdrop_path")),
+        "imdbRating": dados.get("vote_average", "N/A"),
+    }
+
+    return filme_formatado, trailer, trailer_busca_url
+
+
+# -------------------
+# API EXTERNA - TMDb (MIGRAÇÃO SEGURA)
 # -------------------
 
 def buscar_filme_api(request):
     resultados = []
     erro = None
-
-    titulo = request.GET.get('titulo')
+    titulo = request.GET.get("titulo", "").strip()
 
     if titulo:
-        api_key = os.getenv("OMDB_API_KEY")
+        try:
+            resultados = buscar_filmes_tmdb(titulo)
 
-        if not api_key:
-            erro = "chave da API não encontrada no arquivo .env"
-        else:
-            url = f"http://www.omdbapi.com/?s={titulo}&apikey={api_key}"
+            if not resultados:
+                erro = "Nenhum filme encontrado."
+        except ValueError as e:
+            erro = str(e)
+        except requests.RequestException:
+            erro = "Erro ao conectar com a TMDb."
 
-            try:
-                resposta = requests.get(url)
-                dados = resposta.json()
+    return render(request, "cinevault/api/buscar_filme.html", {
+        "resultados": resultados,
+        "erro": erro,
+    })
 
-                if dados.get("Response") == "True":
-                    resultados = dados.get("Search", [])
-                else:
-                    erro = dados.get("Error", "nenhum filme encontrado.")
-
-            except Exception as e:
-                erro = f"erro ao conectar com a api: {str(e)}"
-
-    contexto = {
-        'resultados': resultados,
-        'erro': erro,
-    }
-
-    return render(request, 'cinevault/api/buscar_filme.html', contexto)
-
-
-# -------------------
-# DETALHES DO FILME PELA API
-# -------------------
 
 def detalhes_filme_api(request, imdb_id):
     filme = None
     erro = None
+    trailer_url = None
+    trailer_busca_url = None
+    trailer_embed_url = None
 
-    api_key = os.getenv("OMDB_API_KEY")
+    try:
+        filme, trailer, trailer_busca_url = buscar_detalhes_tmdb(imdb_id)
 
-    if not api_key:
-        erro = "chave da API não encontrada no arquivo .env"
-    else:
-        url = f"http://www.omdbapi.com/?i={imdb_id}&apikey={api_key}&plot=full"
+        if trailer:
+            trailer_url = trailer.get("watch_url")
+            trailer_embed_url = trailer.get("embed_url")
+    except ValueError as e:
+        erro = str(e)
+    except requests.RequestException:
+        erro = "Erro ao conectar com a TMDb."
 
-        try:
-            resposta = requests.get(url)
-            dados = resposta.json()
-
-            if dados.get("Response") == "True":
-                filme = dados
-            else:
-                erro = dados.get("Error", "filme não encontrado.")
-
-        except Exception as e:
-            erro = f"erro ao conectar com a api: {str(e)}"
-
-    contexto = {
-        'filme': filme,
-        'erro': erro,
-    }
-
-    return render(request, 'cinevault/api/detalhes_filme.html', contexto)
+    return render(request, "cinevault/api/detalhes_filme.html", {
+        "filme": filme,
+        "erro": erro,
+        "trailer_url": trailer_url,
+        "trailer_embed_url": trailer_embed_url,
+        "trailer_busca_url": trailer_busca_url,
+    })

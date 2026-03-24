@@ -1,10 +1,10 @@
 {% extends 'cinevault/base.html' %}
 
 {% block content %}
-<h1>excluir filme</h1>
-<p>tem certeza que deseja excluir "{{ filme.titulo }}"?</p>
+<h1>Excluir filme</h1>
+<p>Tem certeza que deseja excluir "{{ filme.titulo }}"?</p>
 <form method="post">
     {% csrf_token %}
-    <button type="submit">sim, excluir</button>
+    <button type="submit">Sim, excluir</button>
 </form>
 {% endblock %}

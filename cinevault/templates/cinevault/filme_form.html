@@ -1,10 +1,10 @@
 {% extends 'cinevault/base.html' %}
 
 {% block content %}
-<h1>formulário de filme</h1>
+<h1>Formulário de filme</h1>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">salvar</button>
+    <button type="submit">Salvar</button>
 </form>
 {% endblock %}
