@@ -47,9 +47,11 @@
                         <p><strong>Ano:</strong> {{ filme.Year }}</p>
                         <p><strong>Tipo:</strong> {{ filme.Type|title }}</p>
 
-                        <a href="{% url 'detalhes_filme_api' filme.imdbID %}" class="btn btn-secondary">
-                            Ver detalhes
-                        </a>
+                        {% if filme.imdbID %}
+    <a href="{% url 'detalhes_filme_api' filme.imdbID %}?titulo={{ titulo|urlencode }}" class="btn btn-details">
+        Ver Detalhes
+    </a>
+{% endif %}
                     </div>
                 </div>
             {% endfor %}

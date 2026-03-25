@@ -1,49 +1,152 @@
 {% extends 'cinevault/base.html' %}
 
-{% block title %}Detalhes | CineVault{% endblock %}
+{% block title %}Detalhes do Filme{% endblock %}
 
 {% block content %}
-<div class="details-page">
-    <a href="{% url 'buscar_filme_api' %}" class="back-link">← voltar para busca</a>
+<div class="detalhes-streaming-page">
 
-    {% if erro %}
-        <div class="error-box">
-            {{ erro }}
-        </div>
-    {% endif %}
+    <section class="hero-detalhes" {% if filme.Backdrop %}style="background-image: url('{{ filme.Backdrop }}');"{% endif %}>
+        <div class="hero-overlay"></div>
 
-    {% if filme %}
-        <div class="details-card">
-            <div class="details-poster">
-                {% if filme.Poster and filme.Poster != 'N/A' %}
-                    <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}">
-                {% else %}
-                    <div class="no-poster large">sem pôster</div>
-                {% endif %}
-            </div>
+        <div class="hero-conteudo">
+            {% if filme %}
+                <div class="hero-poster-box">
+                    <img src="{{ filme.Poster }}" alt="Pôster de {{ filme.Title }}" class="hero-poster">
+                </div>
 
-            <div class="details-info">
-                <h1 class="movie-title">{{ filme.Title }}</h1>
-                <p><strong>Ano:</strong> {{ filme.Year }}</p>
-                <p><strong>Lançamento:</strong> {{ filme.Released }}</p>
-                <p><strong>Duração:</strong> {{ filme.Runtime }}</p>
-                <p><strong>Gênero:</strong> {{ filme.Genre }}</p>
-                <p><strong>Diretor:</strong> {{ filme.Director }}</p>
-                <p><strong>Atores:</strong> {{ filme.Actors }}</p>
-                <p><strong>Idioma:</strong> {{ filme.Language }}</p>
-                <p><strong>País:</strong> {{ filme.Country }}</p>
-                <p><strong>Nota IMDb:</strong> ⭐ {{ filme.imdbRating }}</p>
-                <p><strong>Sinopse:</strong> {{ filme.Plot }}</p>
+                <div class="hero-info-box">
+                    <p class="detalhes-subtitulo">Detalhes do Filme</p>
+                    <h1 class="hero-titulo">{{ filme.Title }}</h1>
 
-                {% if trailer_busca_url %}
-                    <div class="trailer-actions">
-                        <a href="{{ trailer_busca_url }}" target="_blank" class="btn btn-primary">
-                            🎬 ver trailer no youtube
-                        </a>
+                    <div class="hero-badges">
+                        <span class="badge-filme">{{ filme.Year }}</span>
+                        <span class="badge-filme">{{ filme.Runtime }}</span>
+                        <span class="badge-filme nota-badge">⭐ {{ filme.imdbRating }}</span>
                     </div>
-                {% endif %}
-            </div>
+
+                    <p class="hero-generos">{{ filme.Genre }}</p>
+
+                    <div class="hero-acoes">
+                        <a href="{% url 'buscar_filme_api' %}?titulo={{ titulo_pesquisado|urlencode }}" class="btn btn-back">
+                            Voltar para a Busca
+                        </a>
+
+                        {% if trailer_busca_url %}
+                            <a href="{{ trailer_busca_url }}" target="_blank" class="btn-detalhes-principal">
+                                ▶ Ver Trailer No YouTube
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </section>
+
+    <section class="detalhes-conteudo-wrap">
+        {% if erro %}
+            <div class="erro-box">
+                <p>{{ erro }}</p>
+            </div>
+        {% elif filme %}
+            <div class="detalhes-grid-principal">
+
+                <div class="detalhes-coluna-esquerda">
+                    <div class="card-streaming">
+                        <h2 class="secao-titulo">Sinopse</h2>
+                        <p class="sinopse-texto">{{ filme.Plot }}</p>
+                    </div>
+
+                    <div class="card-streaming">
+                        <h2 class="secao-titulo">Trailer</h2>
+
+                        <div class="trailer-card"
+                             {% if filme.Backdrop %}
+                             style="background-image: linear-gradient(rgba(8, 12, 24, 0.72), rgba(8, 12, 24, 0.85)), url('{{ filme.Backdrop }}'); background-size: cover; background-position: center;"
+                             {% endif %}>
+                            <div class="trailer-overlay">
+                                <div class="play-icon">▶</div>
+                                <h3 class="trailer-title">Assistir trailer oficial</h3>
+                                <p class="trailer-description">
+                                    veja o trailer completo de {{ filme.Title }} no youtube
+                                </p>
+
+                                {% if trailer_busca_url %}
+                                    <a href="{{ trailer_busca_url }}" target="_blank" class="btn-trailer">
+                                        assistir agora
+                                    </a>
+                                {% else %}
+                                    <p class="trailer-unavailable">trailer não disponível no momento.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detalhes-coluna-direita">
+                    <div class="card-streaming">
+                        <h2 class="secao-titulo">Informações</h2>
+
+                        <div class="info-lista">
+                            <div class="info-item">
+                                <span class="info-label">Título</span>
+                                <span class="info-valor">{{ filme.Title }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Ano</span>
+                                <span class="info-valor">{{ filme.Year }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Lançamento</span>
+                                <span class="info-valor">{{ filme.Released }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Gênero</span>
+                                <span class="info-valor">{{ filme.Genre }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Duração</span>
+                                <span class="info-valor">{{ filme.Runtime }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Diretor</span>
+                                <span class="info-valor">{{ filme.Director }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Atores</span>
+                                <span class="info-valor">{{ filme.Actors }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Idioma</span>
+                                <span class="info-valor">{{ filme.Language }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">País</span>
+                                <span class="info-valor">{{ filme.Country }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Avaliação</span>
+                                <span class="info-valor">⭐ {{ filme.imdbRating }}</span>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Votos</span>
+                                <span class="info-valor">{{ filme.VoteCount }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

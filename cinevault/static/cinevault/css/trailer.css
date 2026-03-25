@@ -1,0 +1,70 @@
+/* ===== trailer bonito no layout antigo ===== */
+.trailer-card {
+    position: relative;
+    width: 100%;
+    min-height: 280px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #111827, #1f2937, #0f172a);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trailer-overlay {
+    text-align: center;
+    padding: 32px 24px;
+    color: #ffffff;
+    width: 100%;
+}
+
+.play-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+}
+
+.trailer-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+.trailer-description {
+    color: #d1d5db;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.btn-trailer {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+}
+
+.btn-trailer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(239, 68, 68, 0.35);
+}
+
+.trailer-unavailable {
+    color: #fca5a5;
+    font-weight: 500;
+    margin-top: 10px;
+}
